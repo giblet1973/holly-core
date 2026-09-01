@@ -1,0 +1,39 @@
+name: Continuous Integration & Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # Stage 1: Validate system syntax before modifying live application runtimes
+  lint-and-validate:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code Base
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose Configuration
+        run: |
+          docker compose config
+
+  # Stage 2: Safe local delivery executing only after successful validation
+  build-and-deploy:
+    needs: lint-and-validate
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code Base
+        uses: actions/checkout@v4
+
+      - name: Run Zero-Downtime Application Update
+        run: |
+          # Pull down newly updated images if applicable
+          docker compose pull
+          
+          # Rebuild and start container tasks in detached background mode
+          docker compose up -d --build
+          
+          # System hygiene: Clean up untagged or orphaned builder layers
+          docker image prune -f

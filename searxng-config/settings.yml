@@ -1,0 +1,14 @@
+# ============================================================================
+# SEARXNG MASTER BLUEPRINT CONFIGURATION OVERRIDE
+# ============================================================================
+
+# Critically inherit the container's native backend framework scripts
+use_default_settings: true
+
+search:
+  formats:
+    - json
+
+server:
+  secret_key: "holly_core_private_secure_search_string_token"
+

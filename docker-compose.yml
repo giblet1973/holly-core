@@ -1,0 +1,126 @@
+services:
+  # ============================================================================
+  # INFERENCE LAYER: OLLAMA FOR LOCAL LLM COMPUTATION
+  # ============================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-backend
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      - OLLAMA_NUM_PARALLEL=4      # Optimizes memory bus concurrency for local APIs
+      - OLLAMA_MAX_LOADED_MODELS=2 # Stabilizes VRAM footprint allocation boundaries
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all            # Maps the 4070 Ti Super tensor cores into the container
+              capabilities: [gpu]
+
+  # ============================================================================
+  # INTERACTION LAYER: OPEN WEBUI USER INTERFACE (CHATGPT EXTENSION CLONE)
+  # ============================================================================
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui-frontend
+    restart: always
+    ports:
+      - "3000:8080"                # Exposes the user interface on port 3000 of your local LAN
+    volumes:
+      - open-webui_data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434 # Direct backend internal container networking link
+      - WEBUI_SECRET_KEY=cba_engineering_token # Protects secure database configuration states
+    depends_on:
+      - ollama
+
+  # ============================================================================
+  # PRIVATE METASEARCH LAYER: AGGREGATES GOOGLE/BING WIRE ENGINES OFFLINE
+  # ============================================================================
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng-search
+    restart: always
+    ports:
+      - "8888:8080"                  # Maps the internal SearXNG server to port 8888
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8888
+      - SEARXNG_BIND_ADDRESS=0.0.0.0          # Forces the web server to bind strictly to standard IPv4
+      - GRANIAN_ADDRESS=0.0.0.0               # Explicitly stops the new Granian runner from probing for IPv6 sockets
+      - SEARXNG_SETTINGS='{"search":{"formats":["json"]}}'
+    volumes:
+      # Mount ONLY the single settings file directly to the container's expectations:
+      - ~/holly-core/searxng-config/settings.yml:/etc/searxng/settings.yml:ro
+
+  # ============================================================================
+  # METRICS EXPORTER: EXTRACTS BARE-METAL NVIDIA TELEMETRY
+  # ============================================================================
+  nvidia-exporter:
+    image: nvidia/dcgm-exporter:latest
+    container_name: telemetry-nvidia-exporter
+    restart: always
+    environment:
+      - DCGM_EXPORTER_INTERVAL=1000          # Scrapes the GPU every 1 second
+    ports:
+      - "9400:9400"                          # Exposes raw metrics for Prometheus
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ============================================================================
+  # DATA METRICS RETENTION: PROMETHEUS TIME-SERIES ENGINE
+  # ============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: telemetry-prometheus
+    restart: always
+    volumes:
+      - /home/giblet/holly-core/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+
+  # ============================================================================
+  # VISUAL DASHBOARD MATRIX: GRAFANA FRONTEND PORTAL
+  # ============================================================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: telemetry-grafana
+    restart: always
+    ports:
+      - "3001:3000"                          # Maps Grafana to port 3001 (leaves 3000 clear for WebUI)
+    volumes:
+      - grafana-data:/var/lib/grafana        # Keeps dashboard layouts secure across boots
+
+  # ============================================================================
+  # FOCALBOARD: LIGHTWEIGHT KANBAN MANAGEMENT
+  # ============================================================================
+#  focalboard:
+#    image: mattermost/focalboard:latest
+#    container_name: focalboard
+#    restart: always
+#    ports:
+#      - "8020:8000" # Exposes Focalboard on port 8020 so it avoids clashing with Open WebUI ports
+#    volumes:
+#      - ./focalboard_data:/opt/focalboard/data # Stores your cards and board configuration in a local SQLite file
+#    environment:
+#      - FOCALBOARD_PORT=8000
+
+volumes:
+  ollama_data:
+  open-webui_data:
+  prometheus-data:
+  grafana-data:
+#  focalboard_data:
+
