@@ -28,13 +28,11 @@ jobs:
     steps:
       - name: Checkout Code Base
         uses: actions/checkout@v4
-        with:
-          path: repo-source
 
       - name: Sync Code to Chosen Path
         run: |
           mkdir -p "${{ env.TARGET_DIR }}"
-          rsync -av --delete repo-source/ "${{ env.TARGET_DIR }}/"
+          rsync -av --delete ./ "${{ env.TARGET_DIR }}/"
 
       - name: Run Zero-Downtime Application Update
         working-directory: ${{ env.TARGET_DIR }}
