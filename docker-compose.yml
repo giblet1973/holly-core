@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # ============================================================================
   # INFERENCE LAYER: OLLAMA FOR LOCAL LLM COMPUTATION
@@ -34,7 +36,7 @@ services:
       - open-webui_data:/app/backend/data
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434 # Direct backend internal container networking link
-      - WEBUI_SECRET_KEY=cba_engineering_token # Protects secure database configuration states
+      - WEBUI_SECRET_KEY=${WEBUI_SECRET_KEY} # Protects secure database configuration states
     depends_on:
       - ollama
 
@@ -47,8 +49,8 @@ services:
     restart: always
     environment:
       - DCGM_EXPORTER_INTERVAL=1000          # Scrapes the GPU every 1 second
-    ports:
-      - "9400:9400"                          # Exposes raw metrics for Prometheus
+    expose:
+      - "9400"                                # Exposes the port internally within the Docker network
     deploy:
       resources:
         reservations:
