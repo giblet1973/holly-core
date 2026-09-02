@@ -4,11 +4,10 @@ This repository is intended for a local development machine and is not hardened 
 
 ## Current exposure model
 
-- Open WebUI is exposed on port 3000 for development access.
-- Grafana is exposed on port 3001 for development access.
-- Ollama is intentionally internal-only and is reachable only by Docker service name.
-- The NVIDIA exporter is intentionally internal-only and is reachable only by Docker service name.
-
+- **Open WebUI**: Exposed on port 3000 for development access.
+- **Grafana**: Exposed on port 3001 for development access.
+- **Ollama**: Exposed on port 11434 for development access and reachable by Docker service names.
+- **NVIDIA Exporter**: Intentionally internal-only and reachable only by Docker service name.
 ## Secrets
 
 - Do not commit real application secrets.
@@ -28,3 +27,4 @@ If this stack is moved to a production or shared-host environment, tighten it in
 ## Example secret
 
 See [.env.example](.env.example) for the format of the expected secret.
+
