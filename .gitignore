@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+
+docker-compose.override.yml
+
+# Local runtime data
+*.log
+__pycache__/
+.DS_Store
+Thumbs.db
