@@ -88,23 +88,20 @@ services:
   # FOCALBOARD: LIGHTWEIGHT KANBAN MANAGEMENT
   # ============================================================================
   focalboard:
-    image: mattermost/focalboard:7.11.4
+    image: mattermost/focalboard:7.11.4      # Frozen stable production release tag
     container_name: focalboard
     restart: always
     ports:
-      - "8000:8000"
+      - "8000:8000"                          # Exposes the Trello workspace on port 8000
     environment:
       - OLLAMA_HOST=0.0.0.0
     volumes:
-      - ./focalboard_data:/opt/focalboard/data # Stores your cards and board configuration in a local SQLite file
-    user: 1000:1000
-#    environment:
-#      - FOCALBOARD_PORT=8000
+      - focalboard_data:/opt/focalboard/data
 
 volumes:
   ollama_data:
   open-webui_data:
   prometheus-data:
   grafana-data:
-#  focalboard_data:
+  focalboard_data:
 
