@@ -23,14 +23,20 @@ jobs:
     needs: lint-and-validate
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: self-hosted
+    env:
+      TARGET_DIR: /home/giblet/holly-core
     steps:
       - name: Checkout Code Base
         uses: actions/checkout@v4
+        with:
+          path: repo-source
+
+      - name: Sync Code to Chosen Path
+        run: |
+          mkdir -p "${{ env.TARGET_DIR }}"
+          rsync -av --delete repo-source/ "${{ env.TARGET_DIR }}/"
 
       - name: Run Zero-Downtime Application Update
-        working-directory: /home/giblet/holly-core
-        env:
-          WEBUI_SECRET_KEY: ${{ secrets.WEBUI_SECRET_KEY }}
         run: |
           # Pull down newly updated images if applicable
           docker compose pull
