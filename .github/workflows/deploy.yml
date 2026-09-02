@@ -37,6 +37,9 @@ jobs:
           rsync -av --delete repo-source/ "${{ env.TARGET_DIR }}/"
 
       - name: Run Zero-Downtime Application Update
+        working-directory: ${{ env.TARGET_DIR }}
+        env:
+          WEBUI_SECRET_KEY: ${{ secrets.WEBUI_SECRET_KEY }}
         run: |
           # Pull down newly updated images if applicable
           docker compose pull
