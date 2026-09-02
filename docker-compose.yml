@@ -72,9 +72,8 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-    ports:
-      - "9090:9090"
-
+    expose:
+      - "9090"                                # Exposes the port internally within the Docker network
   # ============================================================================
   # VISUAL DASHBOARD MATRIX: GRAFANA FRONTEND PORTAL
   # ============================================================================
@@ -107,4 +106,5 @@ volumes:
   prometheus-data:
   grafana-data:
 #  focalboard_data:
+
 
