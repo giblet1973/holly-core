@@ -6,8 +6,8 @@ services:
     image: ollama/ollama:latest
     container_name: ollama-backend
     restart: always
-    expose:
-      - "11434"
+    ports:
+      - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
     environment:
@@ -29,7 +29,7 @@ services:
     container_name: open-webui-frontend
     restart: always
     ports:
-      - "3000:8080"                # Exposes the user interface on port 3000 for local development access
+      - "3000:8080"                # Exposes the user interface on port 3000 of your local LAN
     volumes:
       - open-webui_data:/app/backend/data
     environment:
@@ -47,8 +47,8 @@ services:
     restart: always
     environment:
       - DCGM_EXPORTER_INTERVAL=1000          # Scrapes the GPU every 1 second
-    expose:
-      - "9400"                              # Keep Nvidia metrics internal to Docker; Prometheus can reach it via the service name
+    ports:
+      - "9400:9400"                          # Exposes raw metrics for Prometheus
     deploy:
       resources:
         reservations:
@@ -71,7 +71,7 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
     ports:
-      - "127.0.0.1:9090:9090"
+      - "9090:9090"
 
   # ============================================================================
   # VISUAL DASHBOARD MATRIX: GRAFANA FRONTEND PORTAL
@@ -81,7 +81,7 @@ services:
     container_name: telemetry-grafana
     restart: always
     ports:
-      - "3001:3000"                          # Maps Grafana to port 3001 for local development access
+      - "3001:3000"                          # Maps Grafana to port 3001 (leaves 3000 clear for WebUI)
     volumes:
       - grafana-data:/var/lib/grafana        # Keeps dashboard layouts secure across boots
 
