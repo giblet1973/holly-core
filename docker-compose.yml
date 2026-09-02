@@ -87,14 +87,17 @@ services:
   # ============================================================================
   # FOCALBOARD: LIGHTWEIGHT KANBAN MANAGEMENT
   # ============================================================================
-#  focalboard:
-#    image: mattermost/focalboard:latest
-#    container_name: focalboard
-#    restart: always
-#    ports:
-#      - "8020:8000" # Exposes Focalboard on port 8020 so it avoids clashing with Open WebUI ports
-#    volumes:
-#      - ./focalboard_data:/opt/focalboard/data # Stores your cards and board configuration in a local SQLite file
+  focalboard:
+    image: mattermost/focalboard:7.11.4
+    container_name: focalboard
+    restart: always
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+    volumes:
+      - ./focalboard_data:/opt/focalboard/data # Stores your cards and board configuration in a local SQLite file
+    user: 1000:1000
 #    environment:
 #      - FOCALBOARD_PORT=8000
 
