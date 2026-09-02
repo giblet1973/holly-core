@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # ============================================================================
   # INFERENCE LAYER: OLLAMA FOR LOCAL LLM COMPUTATION
@@ -106,5 +104,4 @@ volumes:
   prometheus-data:
   grafana-data:
 #  focalboard_data:
-
 
