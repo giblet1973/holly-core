@@ -29,7 +29,7 @@ services:
     container_name: open-webui-frontend
     restart: always
     ports:
-      - "127.0.0.1:3000:8080"      # Restrict WebUI access to localhost unless you intentionally front it with HTTPS
+      - "3000:8080"                # Exposes the user interface on port 3000 for local development access
     volumes:
       - open-webui_data:/app/backend/data
     environment:
@@ -81,7 +81,7 @@ services:
     container_name: telemetry-grafana
     restart: always
     ports:
-      - "127.0.0.1:3001:3000"               # Keep Grafana localhost-only unless you intentionally expose it externally
+      - "3001:3000"                          # Maps Grafana to port 3001 for local development access
     volumes:
       - grafana-data:/var/lib/grafana        # Keeps dashboard layouts secure across boots
 
